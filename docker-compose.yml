@@ -1,0 +1,63 @@
+version: '2'
+# Named volumes
+volumes:
+  test-mysql-data:
+    driver: local
+services:
+  # Nginx
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx
+    ports:
+      - "8088:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+      - mysql
+  # MySQL (5.7)
+  mysql:
+    image: mysql:5.7
+    container_name: test-mysql
+    volumes:
+      - test-mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=test
+      - MYSQL_DATABASE=test
+      - MYSQL_USER=test
+      - MYSQL_PASSWORD=test
+  # PHP
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php
+    volumes:
+      - ./src:/var/www/html
+    ports:
+      - "9000:9000"
+  # Composer
+  composer:
+    image: composer:latest
+    container_name: composer
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      - php
+  # Artisan
+  artisan:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: artisan
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - mysql
+    working_dir: /var/www/html
+    entrypoint: ['php', '/var/www/html/artisan']
+    
