@@ -4,7 +4,7 @@ Docker Image Based on project: https://github.com/aschmelyun/docker-compose-lara
 
 To run the project, follow these steps:
 
-1 - docker-compose up -d --build
+1 - docker-compose up -d --build <br />
 2 - docker-compose run --rm composer install
 3 - docker-compose run --rm npm run dev
 4 - docker-compose run --rm artisan migrate
